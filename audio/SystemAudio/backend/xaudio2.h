@@ -73,13 +73,9 @@ sint32_t Open(){
   waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
   waveFormat.cbSize = 0;
 
-  IXAudio2VoiceCallback vcb;
-  hr = pXAudio2->CreateSourceVoice(
+  hr = ctx->CreateSourceVoice(
     &SourceVoice,
-    &waveFormat,
-    0,
-    XAUDIO2_DEFAULT_FREQ_RATIO,
-    &vcb
+    &waveFormat
   );
   if(FAILED(hr)){
     fan::throw_error("xaudio2", __LINE__);
@@ -100,11 +96,13 @@ void Close(){
 }
 
 void SetVolume(f32_t Volume) {
-  __atomic_store(&this->Volume, &Volume, __ATOMIC_RELAXED);
+  fan::throw_error_impl();
+  //__atomic_store(&this->Volume, &Volume, __ATOMIC_RELAXED);
 }
 f32_t GetVolume() {
   f32_t r;
-  __atomic_store(&r, &this->Volume, __ATOMIC_RELAXED);
+  fan::throw_error_impl();
+ // __atomic_store(&r, &this->Volume, __ATOMIC_RELAXED);
   return r;
 }
 

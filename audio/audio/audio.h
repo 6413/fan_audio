@@ -140,7 +140,7 @@ sint32_t Open(piece_t *piece, FS_file_t *file, PieceFlag::t Flag){
   return err;
 }
 
-sint32_t Open(piece_t *piece, const fan::string &path, uint32_t Flag) {
+sint32_t Open(piece_t *piece, const std::string &path, uint32_t Flag) {
   sint32_t err;
 
   FS_file_t file;
