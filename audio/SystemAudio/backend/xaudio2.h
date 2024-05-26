@@ -35,9 +35,10 @@ static void *_thread_func(void *p) {
     while(1){
       XAUDIO2_VOICE_STATE state;
       This->SourceVoice->GetState(&state);
-      if(state.BuffersQueued > 1){
-        This->SourceVoice->FlushSourceBuffers();
+      if (state.BuffersQueued < 2) {
+        break;
       }
+      This->SourceVoice->FlushSourceBuffers();
     }
 
     HRESULT hr = This->SourceVoice->SubmitSourceBuffer(&xabuf);
@@ -51,6 +52,13 @@ static void *_thread_func(void *p) {
 
 sint32_t Open(){
   HRESULT hr;
+
+
+  hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+  if (FAILED(hr)) {
+    fan::throw_error("xaudio2", __LINE__);
+    return 1;
+  }
 
   hr = XAudio2Create(&ctx, 0, XAUDIO2_DEFAULT_PROCESSOR);
   if(FAILED(hr)){
@@ -93,6 +101,7 @@ void Close(){
   this->SourceVoice->DestroyVoice();
   this->MasterVoice->DestroyVoice();
   this->ctx->Release();
+  CoUninitialize();
 }
 
 void SetVolume(f32_t Volume) {
