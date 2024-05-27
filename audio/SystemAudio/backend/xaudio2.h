@@ -23,17 +23,17 @@ struct xacb_t : IXAudio2VoiceCallback{
 
     static f32_t frames[2][_constants::CallFrameCount * _constants::ChannelAmount] = {0};
 
-    system_audio->Process._DataCallback(frames[framesi]);
+    system_audio->Process._DataCallback(frames[framesi % 2]);
 
     f32_t Volume = This->Volume * This->InternalVolume;
 
     for(uint32_t i = 0; i < _constants::CallFrameCount * _constants::ChannelAmount; i++){
-      frames[framesi][i] *= Volume;
+      frames[framesi % 2][i] *= Volume;
     }
 
     XAUDIO2_BUFFER xabuf = {0};
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
-    xabuf.pAudioData = (uint8_t *)frames[framesi];
+    xabuf.pAudioData = (uint8_t *)frames[framesi % 2];
     xabuf.Flags = XAUDIO2_END_OF_STREAM;
     xabuf.pContext = p;
 
