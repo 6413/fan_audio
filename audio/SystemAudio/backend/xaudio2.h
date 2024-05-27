@@ -32,7 +32,7 @@ struct xacb_t : IXAudio2VoiceCallback{
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
     xabuf.pAudioData = (uint8_t *)frames;
     xabuf.Flags = XAUDIO2_END_OF_STREAM;
-    xabuf.pContext = (void *)This;
+    xabuf.pContext = p;
 
     HRESULT hr = This->SourceVoice->SubmitSourceBuffer(&xabuf);
     if(FAILED(hr)){
