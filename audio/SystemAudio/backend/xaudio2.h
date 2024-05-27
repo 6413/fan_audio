@@ -9,6 +9,9 @@ IXAudio2 *ctx = NULL;
 IXAudio2MasteringVoice *MasterVoice = NULL;
 IXAudio2SourceVoice *SourceVoice;
 
+f32_t frames[2][_constants::CallFrameCount * _constants::ChannelAmount];
+uint8_t framesi = 0;
+
 struct xacb_t : IXAudio2VoiceCallback{
   void __stdcall OnStreamEnd() { }
 
@@ -18,29 +21,30 @@ struct xacb_t : IXAudio2VoiceCallback{
     auto system_audio = (system_audio_t *)p;
     auto This = &system_audio->Out;
 
-    static uint32_t framesi = 0;
-    framesi++;
+    f32_t *frames = This->frames[This->framesi];
 
-    static f32_t frames[2][_constants::CallFrameCount * _constants::ChannelAmount] = {0};
+    __MemorySet(0, frames, sizeof(This->frames[0]));
 
-    system_audio->Process._DataCallback(frames[framesi % 2]);
+    system_audio->Process._DataCallback(frames);
 
     f32_t Volume = This->Volume * This->InternalVolume;
 
     for(uint32_t i = 0; i < _constants::CallFrameCount * _constants::ChannelAmount; i++){
-      frames[framesi % 2][i] *= Volume;
+      frames[i] *= Volume;
     }
 
     XAUDIO2_BUFFER xabuf = {0};
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
-    xabuf.pAudioData = (uint8_t *)frames[framesi % 2];
-    xabuf.Flags = XAUDIO2_END_OF_STREAM;
+    xabuf.pAudioData = (uint8_t *)frames;
     xabuf.pContext = p;
 
     HRESULT hr = This->SourceVoice->SubmitSourceBuffer(&xabuf);
     if(FAILED(hr)){
       fan::throw_error("xaudio2", __LINE__);
     }
+
+    This->framesi++;
+    This->framesi %= 2;
   }
   void __stdcall OnBufferStart(void* pBufferContext) { }
   void __stdcall OnLoopEnd(void* pBufferContext) { }
@@ -93,18 +97,20 @@ sint32_t Open(){
   this->SourceVoice->Start(0);
 
   for(uint8_t i = 0; i < 2; i++){
-    static f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
+    __MemorySet(0, frames[framesi], sizeof(frames[0]));
 
     XAUDIO2_BUFFER xabuf = {0};
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
-    xabuf.pAudioData = (uint8_t *)frames;
-    xabuf.Flags = XAUDIO2_END_OF_STREAM;
+    xabuf.pAudioData = (uint8_t *)frames[framesi];
     xabuf.pContext = (void *)system_audio();
 
     hr = this->SourceVoice->SubmitSourceBuffer(&xabuf);
     if(FAILED(hr)){
       fan::throw_error("xaudio2", __LINE__);
     }
+
+    framesi++;
+    framesi = framesi % 2;
   }
 
   return 0;
