@@ -102,8 +102,6 @@ sint32_t Open(){
     XAUDIO2_BUFFER xabuf = {0};
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
     xabuf.pAudioData = (uint8_t *)frames[framesi];
-    xabuf.PlayBegin = _constants::Opus::SegmentFrameAmount20;
-    xabuf.PlayLength = _constants::Opus::SegmentFrameAmount20;
     xabuf.pContext = (void *)system_audio();
 
     hr = this->SourceVoice->SubmitSourceBuffer(&xabuf);
