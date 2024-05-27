@@ -18,7 +18,7 @@ struct xacb_t : IXAudio2VoiceCallback{
     auto system_audio = (system_audio_t *)p;
     auto This = &system_audio->Out;
 
-    f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
+    static f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
 
     system_audio->Process._DataCallback(frames);
 
@@ -74,7 +74,7 @@ sint32_t Open(){
   waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
   waveFormat.cbSize = 0;
 
-  xacb_t xacb;
+  static xacb_t xacb;
   hr = this->ctx->CreateSourceVoice(
     &this->SourceVoice,
     &waveFormat,
@@ -90,7 +90,7 @@ sint32_t Open(){
   this->SourceVoice->Start(0);
 
   for(uint8_t i = 0; i < 2; i++){
-    f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
+    static f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
 
     XAUDIO2_BUFFER xabuf = {0};
     xabuf.AudioBytes = _constants::CallFrameCount * _constants::ChannelAmount * sizeof(f32_t);
