@@ -53,13 +53,13 @@ sint32_t Open(){
     return 1;
   }
 
-  hr = XAudio2Create(&This->ctx, 0, XAUDIO2_DEFAULT_PROCESSOR);
+  hr = XAudio2Create(&this->ctx, 0, XAUDIO2_DEFAULT_PROCESSOR);
   if(FAILED(hr)){
     fan::throw_error("xaudio2", __LINE__);
     return 1;
   }
 
-  hr = This->ctx->CreateMasteringVoice(&This->MasterVoice);
+  hr = this->ctx->CreateMasteringVoice(&this->MasterVoice);
   if(FAILED(hr)){
     fan::throw_error("xaudio2", __LINE__);
     return 1;
@@ -75,8 +75,8 @@ sint32_t Open(){
   waveFormat.cbSize = 0;
 
   xacb_t xacb;
-  hr = This->ctx->CreateSourceVoice(
-    &This->SourceVoice,
+  hr = this->ctx->CreateSourceVoice(
+    &this->SourceVoice,
     &waveFormat,
     0,
     XAUDIO2_DEFAULT_FREQ_RATIO,
@@ -87,7 +87,7 @@ sint32_t Open(){
     return 1;
   }
 
-  This->SourceVoice->Start(0);
+  this->SourceVoice->Start(0);
 
   for(uint8_t i = 0; i < 2; i++){
     f32_t frames[_constants::CallFrameCount * _constants::ChannelAmount] = {0};
@@ -98,7 +98,7 @@ sint32_t Open(){
     xabuf.Flags = XAUDIO2_END_OF_STREAM;
     xabuf.pContext = (void *)system_audio();
 
-    hr = This->SourceVoice->SubmitSourceBuffer(&xabuf);
+    hr = this->SourceVoice->SubmitSourceBuffer(&xabuf);
     if(FAILED(hr)){
       fan::throw_error("xaudio2", __LINE__);
     }
