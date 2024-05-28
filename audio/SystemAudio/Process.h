@@ -580,5 +580,5 @@ void _DataCallback(f32_t *Output) {
     }
   }
 
-  ResultFrameCB(this, Output, _constants::CallFrameCount);
+  ResultFramesCB(this, Output, _constants::CallFrameCount);
 }
